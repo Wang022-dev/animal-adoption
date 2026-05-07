@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>成员管理 - 管理员</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar admin-theme">
+        <div class="sidebar-brand-block">
+            <span class="brand-chip dark">PET HAVEN OPS</span>
+            <h2>管理员运营中心</h2>
+            <p th:text="'欢迎回来，' + ${loginUser.realName}"></p>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/admin/dashboard}" href="/admin/dashboard">工作台总览</a>
+            <a class="nav-item" th:href="@{/admin/animals}" href="/admin/animals">动物档案</a>
+            <a class="nav-item" th:href="@{/admin/rescues}" href="/admin/rescues">救助审核</a>
+            <a class="nav-item" th:href="@{/admin/applications}" href="/admin/applications">领养审核</a>
+            <a class="nav-item active" th:href="@{/admin/members}" href="/admin/members">成员管理</a>
+            <a class="nav-item" th:href="@{/admin/analytics}" href="/admin/analytics">数据分析</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner admin-banner">
+            <div><span class="eyebrow">组织视角</span><h1>成员角色与协作信息一屏总览</h1><p>管理员可以查看普通用户、志愿者与管理员自身信息，体现完整组织体系。</p></div>
+        </section>
+        <section class="panel-section">
+            <div class="section-head"><div><h3>成员列表</h3><p>支持展示姓名、角色、联系方式与状态</p></div></div>
+            <div class="table-shell">
+                <table>
+                    <thead><tr><th>ID</th><th>账号</th><th>姓名</th><th>角色</th><th>手机号</th><th>邮箱</th><th>状态</th></tr></thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(members)}">
+                        <td colspan="7">暂无成员数据，可先通过注册或初始化脚本补充账号。</td>
+                    </tr>
+                    <tr th:each="member : ${members}">
+                        <td th:text="${member.id}"></td>
+                        <td th:text="${member.username}"></td>
+                        <td th:text="${member.realName}"></td>
+                        <td><span class="badge" th:text="${member.roleCode}"></span></td>
+                        <td th:text="${member.phone}"></td>
+                        <td th:text="${member.email}"></td>
+                        <td th:text="${member.status != null and member.status == 1 ? '启用中' : '待确认'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

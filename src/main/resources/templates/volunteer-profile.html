@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>志愿者资料 - Pet Haven</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar volunteer-theme">
+        <div class="sidebar-brand-block"><span class="brand-chip dark">FIELD CARE</span><h2>志愿者任务中心</h2><p th:text="'欢迎回来，' + ${loginUser.realName}"></p></div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/volunteer/dashboard}" href="/volunteer/dashboard">任务总览</a>
+            <a class="nav-item" th:href="@{/volunteer/rescues}" href="/volunteer/rescues">救助登记</a>
+            <a class="nav-item" th:href="@{/volunteer/care}" href="/volunteer/care">护理跟进</a>
+            <a class="nav-item" th:href="@{/volunteer/followups}" href="/volunteer/followups">回访管理</a>
+            <a class="nav-item active" th:href="@{/volunteer/profile}" href="/volunteer/profile">个人资料</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner volunteer-banner"><div><span class="eyebrow">协作身份</span><h1>志愿者资料与任务参与信息</h1><p>个人信息、角色身份与执行记录统一沉淀，整体更像正式协作平台。</p></div></section>
+        <section class="panel-section">
+            <div class="profile-grid premium-profile-grid">
+                <div class="profile-item"><span>账号</span><strong th:text="${profileUser.username}"></strong></div>
+                <div class="profile-item"><span>姓名</span><strong th:text="${profileUser.realName}"></strong></div>
+                <div class="profile-item"><span>角色</span><strong>志愿者</strong></div>
+                <div class="profile-item"><span>手机号</span><strong th:text="${profileUser.phone}"></strong></div>
+                <div class="profile-item"><span>邮箱</span><strong th:text="${profileUser.email}"></strong></div>
+                <div class="profile-item"><span>性别</span><strong th:text="${profileUser.gender}"></strong></div>
+                <div class="profile-item full-span"><span>个人简介</span><strong th:text="${profileUser.bio}"></strong></div>
+            </div>
+        </section>
+        <section class="panel-section">
+            <div class="section-head"><div><h3>我的任务摘要</h3><p>显示当前参与的救助任务数量与状态</p></div></div>
+            <div class="table-shell"><table><thead><tr><th>动物</th><th>审核状态</th><th>动物阶段</th><th>地点</th></tr></thead><tbody><tr th:each="task : ${tasks}"><td th:text="${task.animalName}"></td><td><span class="badge" th:text="${task.audit_status}"></span></td><td th:text="${task.status}"></td><td th:text="${task.found_location}"></td></tr></tbody></table></div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

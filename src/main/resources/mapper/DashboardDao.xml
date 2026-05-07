@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DashboardDao">
+
+    <select id="roleAnimalStats" resultType="java.util.HashMap">
+        SELECT               CASE status
+                   WHEN 'RESCUED_PENDING_REVIEW' THEN '待审核救助'
+                   WHEN 'UNDER_RESCUE' THEN '救助中'
+                   WHEN 'RESCUE_REJECTED' THEN '救助驳回'
+                   WHEN 'OPEN_FOR_ADOPTION' THEN '开放领养中'
+                   WHEN 'APPLICATION_REVIEW' THEN '领养申请审核中'
+                   WHEN 'APPROVED' THEN '领养审核通过'
+                   WHEN 'FOLLOWUP_PENDING' THEN '待回访'
+                   WHEN 'ADOPTION_COMPLETED' THEN '领养完成'
+                   WHEN 'FOLLOWUP_EXCEPTION' THEN '回访异常'
+                   WHEN 'RETURNED_TO_CENTER' THEN '退养返站'
+                   ELSE status
+               END AS label,
+COUNT(*) AS value
+        FROM animal
+        GROUP BY status
+        ORDER BY COUNT(*) DESC
+    </select>
+
+    <select id="latestOpenAnimals" resultType="java.util.HashMap">
+        SELECT id,
+               animal_no,
+               name,
+               category,
+               breed,
+               age_desc,
+               gender,
+               CASE status
+                   WHEN 'OPEN_FOR_ADOPTION' THEN '开放领养中'
+                   WHEN 'APPLICATION_REVIEW' THEN '申请审核中'
+                   WHEN 'APPROVED' THEN '已通过待回访'
+                   WHEN 'FOLLOWUP_PENDING' THEN '待回访'
+                   WHEN 'ADOPTION_COMPLETED' THEN '已完成领养'
+                   ELSE status
+               END AS status,
+               found_location,
+               cover_image
+        FROM animal
+        WHERE status IN ('OPEN_FOR_ADOPTION', 'APPLICATION_REVIEW', 'APPROVED', 'FOLLOWUP_PENDING', 'ADOPTION_COMPLETED')
+        ORDER BY create_time DESC
+        LIMIT 6
+    </select>
+
+    <select id="pendingRescueList" resultType="java.util.HashMap">
+        SELECT rr.id,
+               a.name AS animalName,
+               a.category,
+               a.gender,
+               u.real_name AS volunteerName,
+               rr.found_location,
+               rr.found_time,
+               CASE rr.audit_status
+                   WHEN 'PENDING' THEN '待审核'
+                   WHEN 'APPROVED' THEN '已通过'
+                   WHEN 'REJECTED' THEN '已驳回'
+                   ELSE rr.audit_status
+               END AS audit_status,
+               rr.audit_remark
+        FROM rescue_record rr
+        LEFT JOIN animal a ON a.id = rr.animal_id
+        LEFT JOIN sys_user u ON u.id = rr.volunteer_user_id
+        ORDER BY rr.create_time DESC
+    </select>
+
+    <select id="adoptionApplications" resultType="java.util.HashMap">
+        SELECT aa.id,
+               a.name AS animalName,
+               a.id AS animalId,
+               su.real_name AS applicantName,
+               su.id AS applicantUserId,
+               su.gender AS applicantGender,
+               su.phone AS applicantPhone,
+               aa.apply_reason,
+               aa.housing_info,
+               aa.family_info,
+               aa.pet_experience,
+               CASE aa.status
+                   WHEN 'PENDING' THEN '待审核'
+                   WHEN 'APPROVED' THEN '已通过'
+                   WHEN 'REJECTED' THEN '已驳回'
+                   WHEN 'SUPPLEMENT' THEN '待补充资料'
+                   ELSE aa.status
+               END AS status,
+               aa.audit_remark,
+               aa.create_time
+        FROM adoption_application aa
+        LEFT JOIN animal a ON a.id = aa.animal_id
+        LEFT JOIN sys_user su ON su.id = aa.applicant_user_id
+        ORDER BY aa.create_time DESC
+    </select>
+
+    <select id="volunteerTasks" resultType="java.util.HashMap">
+        SELECT a.name AS animalName,
+               a.category,
+               a.gender,
+               CASE rr.audit_status
+                   WHEN 'PENDING' THEN '待审核'
+                   WHEN 'APPROVED' THEN '已通过'
+                   WHEN 'REJECTED' THEN '已驳回'
+                   ELSE rr.audit_status
+               END AS audit_status,
+               CASE a.status
+                   WHEN 'RESCUED_PENDING_REVIEW' THEN '待审核救助'
+                   WHEN 'UNDER_RESCUE' THEN '救助中'
+                   WHEN 'RESCUE_REJECTED' THEN '救助驳回'
+                   WHEN 'OPEN_FOR_ADOPTION' THEN '开放领养中'
+                   WHEN 'APPLICATION_REVIEW' THEN '领养申请审核中'
+                   WHEN 'APPROVED' THEN '领养审核通过'
+                   WHEN 'FOLLOWUP_PENDING' THEN '待回访'
+                   WHEN 'ADOPTION_COMPLETED' THEN '领养完成'
+                   WHEN 'FOLLOWUP_EXCEPTION' THEN '回访异常'
+                   WHEN 'RETURNED_TO_CENTER' THEN '退养返站'
+                   ELSE a.status
+               END AS status,
+               rr.found_location,
+               rr.found_time,
+               rr.audit_remark
+        FROM rescue_record rr
+        LEFT JOIN animal a ON a.id = rr.animal_id
+        WHERE rr.volunteer_user_id = #{userId}
+        ORDER BY rr.create_time DESC
+    </select>
+
+    <select id="myApplications" resultType="java.util.HashMap">
+        SELECT aa.id,
+               a.name AS animalName,
+               a.id AS animalId,
+               a.cover_image,
+               aa.apply_reason,
+               aa.housing_info,
+               aa.family_info,
+               aa.pet_experience,
+               aa.status AS rawStatus,
+               CASE aa.status
+                   WHEN 'PENDING' THEN '待审核'
+                   WHEN 'APPROVED' THEN '已通过'
+                   WHEN 'REJECTED' THEN '已驳回'
+                   WHEN 'SUPPLEMENT' THEN '待补充资料'
+                   ELSE aa.status
+               END AS status,
+               aa.audit_remark,
+               aa.create_time
+        FROM adoption_application aa
+        LEFT JOIN animal a ON a.id = aa.animal_id
+        WHERE aa.applicant_user_id = #{userId}
+        ORDER BY aa.create_time DESC
+    </select>
+</mapper>

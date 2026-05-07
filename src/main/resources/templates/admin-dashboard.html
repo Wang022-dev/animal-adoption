@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员运营中心</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar admin-theme">
+        <div class="sidebar-brand-block">
+            <span class="brand-chip dark">PET HAVEN OPS</span>
+            <h2>管理员运营中心</h2>
+            <p th:text="'欢迎回来，' + ${loginUser.realName}"></p>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item active" th:href="@{/admin/dashboard}" href="/admin/dashboard">工作台总览</a>
+            <a class="nav-item" th:href="@{/admin/animals}" href="/admin/animals">动物档案</a>
+            <a class="nav-item" th:href="@{/admin/rescues}" href="/admin/rescues">救助审核</a>
+            <a class="nav-item" th:href="@{/admin/applications}" href="/admin/applications">领养审核</a>
+            <a class="nav-item" th:href="@{/admin/members}" href="/admin/members">成员管理</a>
+            <a class="nav-item" th:href="@{/admin/analytics}" href="/admin/analytics">数据分析</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a class="logout" th:href="@{/logout}" href="/logout">退出登录</a>
+        </div>
+    </aside>
+
+    <main class="pro-content">
+        <section class="hero-banner admin-banner">
+            <div>
+                <span class="eyebrow light">运营闭环</span>
+                <h1>一个真正可运营的动物救助与领养管理后台</h1>
+                <p>管理员可以集中处理动物档案、救助审核、领养审批、成员数据与运营看板，让项目不只是“能演示”，而是具备完整业务感。</p>
+            </div>
+            <div class="hero-metrics">
+                <div class="hero-metric" th:each="item : ${animalStats}">
+                    <span th:text="${item.label}"></span>
+                    <strong th:text="${item.value}"></strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-section">
+            <div class="section-head">
+                <div>
+                    <h3>动物档案管理</h3>
+                    <p>维护动物基础信息、状态与开放领养动作</p>
+                </div>
+            </div>
+            <div class="table-shell">
+                <table>
+                    <thead>
+                    <tr><th>编号</th><th>昵称</th><th>类型/品种</th><th>性别</th><th>发现地点</th><th>当前状态</th><th>操作</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="animal : ${animals}">
+                        <td th:text="${animal.animalNo}"></td>
+                        <td th:text="${animal.name}"></td>
+                        <td th:text="${animal.category + ' / ' + animal.breed}"></td>
+                        <td th:text="${animal.gender}"></td>
+                        <td th:text="${animal.foundLocation}"></td>
+                        <td><span class="badge" th:text="${animal.status == 'OPEN_FOR_ADOPTION' ? '开放领养中' : (animal.status == 'APPLICATION_REVIEW' ? '申请审核中' : (animal.status == 'FOLLOWUP_PENDING' ? '待回访' : (animal.status == 'ADOPTION_COMPLETED' ? '已完成领养' : (animal.status == 'UNDER_RESCUE' ? '救助中' : (animal.status == 'RESCUED_PENDING_REVIEW' ? '待审核救助' : animal.status)))))}"></span></td>
+                        <td>
+                            <form th:if="${animal.status != 'OPEN_FOR_ADOPTION' and animal.status != 'ADOPTION_COMPLETED'}" th:action="@{/admin/animal/open-adoption}" action="/admin/animal/open-adoption" method="post">
+                                <input type="hidden" name="animalId" th:value="${animal.id}">
+                                <button type="submit">开放领养</button>
+                            </form>
+                            <span th:if="${animal.status == 'OPEN_FOR_ADOPTION'}">已开放</span>
+                            <span th:if="${animal.status == 'ADOPTION_COMPLETED'}">已完成领养</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="double-section">
+            <section class="panel-section">
+                <div class="section-head">
+                    <div>
+                        <h3>救助审核模块</h3>
+                        <p>审核志愿者提交的救助信息，支持通过与驳回</p>
+                    </div>
+                </div>
+                <div class="table-shell compact-table">
+                    <table>
+                        <thead>
+                        <tr><th>动物</th><th>类型/性别</th><th>志愿者</th><th>状态</th><th>操作</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="rescue : ${rescues}">
+                            <td>
+                                <strong th:text="${rescue.animalName}"></strong>
+                                <small th:text="${rescue.found_location}"></small>
+                            </td>
+                            <td th:text="${rescue.category + ' / ' + rescue.gender}"></td>
+                            <td th:text="${rescue.volunteerName}"></td>
+                            <td><span class="badge" th:text="${rescue.audit_status}"></span></td>
+                            <td class="action-col">
+                                <form th:if="${rescue.audit_status == '待审核'}" th:action="@{/admin/rescue/approve}" action="/admin/rescue/approve" method="post" class="stack-form">
+                                    <input type="hidden" name="rescueId" th:value="${rescue.id}">
+                                    <input name="auditRemark" value="信息完整，同意入库">
+                                    <button type="submit">审核通过</button>
+                                </form>
+                                <form th:if="${rescue.audit_status == '待审核'}" th:action="@{/admin/rescue/reject}" action="/admin/rescue/reject" method="post" class="stack-form danger-form">
+                                    <input type="hidden" name="rescueId" th:value="${rescue.id}">
+                                    <input name="auditRemark" value="信息不完整，请补充救助说明">
+                                    <button type="submit">驳回记录</button>
+                                </form>
+                                <span th:if="${rescue.audit_status != '待审核'}">已处理</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel-section">
+                <div class="section-head">
+                    <div>
+                        <h3>领养审批模块</h3>
+                        <p>支持通过、驳回与要求补充资料</p>
+                    </div>
+                </div>
+                <div class="table-shell compact-table">
+                    <table>
+                        <thead>
+                        <tr><th>申请人</th><th>动物</th><th>状态</th><th>意见</th><th>操作</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="app : ${applications}">
+                            <td>
+                                <strong th:text="${app.applicantName}"></strong>
+                                <small th:text="${app.applicantPhone}"></small>
+                            </td>
+                            <td th:text="${app.animalName}"></td>
+                            <td>
+                                <div class="application-meta"><strong>状态：</strong><span class="badge" th:text="${app.status}"></span></div>
+                                <div class="application-meta"><strong>申请说明：</strong><span th:text="${app.apply_reason}"></span></div>
+                                <div class="application-meta"><strong>居住情况：</strong><span th:text="${app.housing_info}"></span></div>
+                                <div class="application-meta"><strong>家庭情况：</strong><span th:text="${app.family_info}"></span></div>
+                                <div class="application-meta"><strong>养宠经验：</strong><span th:text="${app.pet_experience}"></span></div>
+                            </td>
+                            <td th:text="${app.audit_remark}"></td>
+                            <td class="action-col">
+                                <form th:if="${app.status == '待审核' or app.status == '待补充资料'}" th:action="@{/admin/adoption/approve}" action="/admin/adoption/approve" method="post" class="stack-form">
+                                    <input type="hidden" name="applicationId" th:value="${app.id}">
+                                    <input name="auditRemark" value="资料完整，通过申请，进入交接阶段">
+                                    <button type="submit">通过申请</button>
+                                </form>
+                                <form th:if="${app.status == '待审核'}" th:action="@{/admin/adoption/supplement}" action="/admin/adoption/supplement" method="post" class="stack-form warn-form">
+                                    <input type="hidden" name="applicationId" th:value="${app.id}">
+                                    <input name="auditRemark" value="请补充居住稳定性与回访配合说明">
+                                    <button type="submit">要求补资料</button>
+                                </form>
+                                <form th:if="${app.status == '待审核' or app.status == '待补充资料'}" th:action="@{/admin/adoption/reject}" action="/admin/adoption/reject" method="post" class="stack-form danger-form">
+                                    <input type="hidden" name="applicationId" th:value="${app.id}">
+                                    <input name="auditRemark" value="当前条件暂不满足领养要求，建议后续再申请">
+                                    <button type="submit">驳回申请</button>
+                                </form>
+                                <span th:if="${app.status == '已通过' or app.status == '已驳回'}">已处理</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+</body>
+</html>

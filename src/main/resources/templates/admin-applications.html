@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>领养审核 - 管理员</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar admin-theme">
+        <div class="sidebar-brand-block">
+            <span class="brand-chip dark">PET HAVEN OPS</span>
+            <h2>管理员运营中心</h2>
+            <p th:text="'欢迎回来，' + ${loginUser.realName}"></p>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/admin/dashboard}" href="/admin/dashboard">工作台总览</a>
+            <a class="nav-item" th:href="@{/admin/animals}" href="/admin/animals">动物档案</a>
+            <a class="nav-item" th:href="@{/admin/rescues}" href="/admin/rescues">救助审核</a>
+            <a class="nav-item active" th:href="@{/admin/applications}" href="/admin/applications">领养审核</a>
+            <a class="nav-item" th:href="@{/admin/members}" href="/admin/members">成员管理</a>
+            <a class="nav-item" th:href="@{/admin/analytics}" href="/admin/analytics">数据分析</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner admin-banner">
+            <div><span class="eyebrow">审批闭环</span><h1>让每一份领养申请都有清晰结论</h1><p>支持通过、补资料、驳回三种真实流程，便于演示成熟系统的治理能力。</p></div>
+        </section>
+        <section class="panel-section">
+            <div class="section-head"><div><h3>领养申请列表</h3><p>显示申请人、动物、审核意见与处理动作</p></div></div>
+            <div class="table-shell">
+                <table>
+                    <thead><tr><th>申请人</th><th>动物</th><th>状态</th><th>理由</th><th>审核意见</th><th>操作</th></tr></thead>
+                    <tbody>
+                    <tr th:each="app : ${applications}">
+                        <td><strong th:text="${app.applicantName}"></strong><small th:text="${app.applicantPhone}"></small></td>
+                        <td th:text="${app.animalName}"></td>
+                        <td><span class="badge" th:text="${app['status']}"></span></td>
+                        <td>
+                            <div class="application-meta"><strong>居住情况：</strong><span th:text="${app['housing_info']}"></span></div>
+                            <div class="application-meta"><strong>家庭情况：</strong><span th:text="${app['family_info']}"></span></div>
+                            <div class="application-meta"><strong>养宠经验：</strong><span th:text="${app['pet_experience']}"></span></div>
+                            <div class="application-meta"><strong>申请说明：</strong><span th:text="${app['apply_reason']}"></span></div>
+                        </td>
+                        <td th:text="${app['audit_remark']}"></td>
+                        <td class="action-col">
+                            <form th:if="${app['status'] == '待审核' or app['status'] == '待补充资料'}" th:action="@{/admin/adoption/approve}" action="/admin/adoption/approve" method="post" class="stack-form">
+                                <input type="hidden" name="applicationId" th:value="${app['id']}"><input name="auditRemark" value="资料完整，通过申请，进入交接阶段"><button type="submit">通过申请</button>
+                            </form>
+                            <form th:if="${app['status'] == '待审核'}" th:action="@{/admin/adoption/supplement}" action="/admin/adoption/supplement" method="post" class="stack-form warn-form">
+                                <input type="hidden" name="applicationId" th:value="${app['id']}"><input name="auditRemark" value="请补充居住环境与回访配合说明"><button type="submit">要求补资料</button>
+                            </form>
+                            <form th:if="${app['status'] == '待审核' or app['status'] == '待补充资料'}" th:action="@{/admin/adoption/reject}" action="/admin/adoption/reject" method="post" class="stack-form danger-form">
+                                <input type="hidden" name="applicationId" th:value="${app['id']}"><input name="auditRemark" value="当前条件暂不满足领养要求"><button type="submit">驳回申请</button>
+                            </form>
+                            <span th:if="${app['status'] == '已通过' or app['status'] == '已驳回'}">已处理</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

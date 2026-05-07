@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>动物档案管理 - 管理员</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar admin-theme">
+        <div class="sidebar-brand-block">
+            <span class="brand-chip dark">PET HAVEN OPS</span>
+            <h2>管理员运营中心</h2>
+            <p th:text="'欢迎回来，' + ${loginUser.realName}"></p>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/admin/dashboard}" href="/admin/dashboard">工作台总览</a>
+            <a class="nav-item active" th:href="@{/admin/animals}" href="/admin/animals">动物档案</a>
+            <a class="nav-item" th:href="@{/admin/rescues}" href="/admin/rescues">救助审核</a>
+            <a class="nav-item" th:href="@{/admin/applications}" href="/admin/applications">领养审核</a>
+            <a class="nav-item" th:href="@{/admin/members}" href="/admin/members">成员管理</a>
+            <a class="nav-item" th:href="@{/admin/analytics}" href="/admin/analytics">数据分析</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner admin-banner">
+            <div>
+                <span class="eyebrow">动物资产库</span>
+                <h1>统一管理所有动物档案与领养开放状态</h1>
+                <p>这个页面是实际业务入口，不是摆设。管理员可以直接查看编号、地点、状态与操作动作。</p>
+            </div>
+        </section>
+        <section class="panel-section">
+            <div class="section-head"><div><h3>全部动物档案</h3><p>支持答辩演示动物建档、状态推进与开放领养</p></div></div>
+            <div class="table-shell">
+                <table>
+                    <thead><tr><th>编号</th><th>昵称</th><th>分类</th><th>品种</th><th>健康</th><th>安置地点</th><th>状态</th><th>操作</th></tr></thead>
+                    <tbody>
+                    <tr th:each="animal : ${animals}">
+                        <td th:text="${animal.animalNo}"></td>
+                        <td th:text="${animal.name}"></td>
+                        <td th:text="${animal.category}"></td>
+                        <td th:text="${animal.breed}"></td>
+                        <td th:text="${animal.healthStatus}"></td>
+                        <td th:text="${animal.currentLocation}"></td>
+                        <td><span class="badge" th:text="${animal.status == 'OPEN_FOR_ADOPTION' ? '开放领养中' : (animal.status == 'APPLICATION_REVIEW' ? '申请审核中' : (animal.status == 'FOLLOWUP_PENDING' ? '待回访' : (animal.status == 'ADOPTION_COMPLETED' ? '已完成领养' : (animal.status == 'UNDER_RESCUE' ? '救助中' : (animal.status == 'RESCUED_PENDING_REVIEW' ? '待审核救助' : animal.status)))))}"></span></td>
+                        <td>
+                            <form th:if="${animal.status != 'OPEN_FOR_ADOPTION' and animal.status != 'ADOPTION_COMPLETED'}" th:action="@{/admin/animal/open-adoption}" action="/admin/animal/open-adoption" method="post">
+                                <input type="hidden" name="animalId" th:value="${animal.id}">
+                                <button type="submit">开放领养</button>
+                            </form>
+                            <span th:if="${animal.status == 'OPEN_FOR_ADOPTION'}">已开放</span>
+                            <span th:if="${animal.status == 'ADOPTION_COMPLETED'}">已完成领养</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的申请 - Pet Haven</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-brand"><span class="brand-chip dark">PET HAVEN</span><h1>流浪动物守护与领养平台</h1></div>
+    <nav class="site-nav">
+        <a th:href="@{/user/home}" href="/user/home">首页</a>
+        <a th:href="@{/user/animals}" href="/user/animals">可领养动物</a>
+        <a class="active" th:href="@{/user/applications}" href="/user/applications">我的申请</a>
+        <a th:href="@{/user/articles}" href="/user/articles">公益资讯</a>
+        <a th:href="@{/user/profile}" href="/user/profile">我的资料</a>
+    </nav>
+    <div class="site-actions"><a class="outline-btn" th:href="@{/logout}" href="/logout">退出登录</a></div>
+</header>
+<main class="site-main">
+    <section class="detail-hero-banner"><div><span class="eyebrow">申请进度</span><h2>我的领养申请</h2><p>这里展示每一笔申请的状态、审核意见与提交时间，真正能用于用户侧跟进。</p></div></section>
+    <section class="content-section">
+        <div class="table-shell">
+            <table>
+                <thead><tr><th>动物</th><th>状态</th><th>申请理由</th><th>居住情况</th><th>审核意见</th><th>申请时间</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(applications)}">
+                    <td colspan="6">你还没有提交领养申请，去可领养动物页面看看是否有心仪的小伙伴吧。</td>
+                </tr>
+                <tr th:each="app : ${applications}">
+                    <td th:text="${app.animalName}"></td>
+                    <td><span class="badge" th:text="${app.status}"></span></td>
+                    <td th:text="${app.apply_reason != null and !#strings.isEmpty(app.apply_reason) ? app.apply_reason : '已提交申请，待管理员审核'}"></td>
+                    <td th:text="${app.housing_info != null and !#strings.isEmpty(app.housing_info) ? app.housing_info : '未填写'}"></td>
+                    <td th:text="${app.audit_remark != null and !#strings.isEmpty(app.audit_remark) ? app.audit_remark : '审核中，暂无反馈'}"></td>
+                    <td th:text="${#dates.format(app.create_time,'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

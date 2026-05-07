@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>救助登记 - 志愿者</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar volunteer-theme">
+        <div class="sidebar-brand-block"><span class="brand-chip dark">FIELD CARE</span><h2>志愿者任务中心</h2><p th:text="'欢迎回来，' + ${loginUser.realName}"></p></div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/volunteer/dashboard}" href="/volunteer/dashboard">任务总览</a>
+            <a class="nav-item active" th:href="@{/volunteer/rescues}" href="/volunteer/rescues">救助登记</a>
+            <a class="nav-item" th:href="@{/volunteer/care}" href="/volunteer/care">护理跟进</a>
+            <a class="nav-item" th:href="@{/volunteer/followups}" href="/volunteer/followups">回访管理</a>
+            <a class="nav-item" th:href="@{/volunteer/profile}" href="/volunteer/profile">个人资料</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner volunteer-banner"><div><span class="eyebrow">现场录入</span><h1>把每一次发现、送医、安置都记录清楚</h1><p>救助登记页独立拆分后，志愿者工作流更像真实业务系统，而不是单页演示。</p></div></section>
+        <section class="panel-section">
+            <div class="section-head"><div><h3>新增救助记录</h3><p>完整录入基础档案和救助经过</p></div></div>
+            <form class="grid-form two-col-form panel-form" th:action="@{/volunteer/rescue/create}" action="/volunteer/rescue/create" method="post">
+                <input name="name" minlength="2" maxlength="20" placeholder="动物昵称" required>
+                <select name="category" required><option value="">请选择动物类型</option><option value="猫">猫</option><option value="狗">狗</option><option value="其他">其他</option></select>
+                <input name="breed" maxlength="30" placeholder="品种" required>
+                <input name="ageDesc" maxlength="30" placeholder="年龄描述" required>
+                <select name="gender" required><option value="">请选择性别</option><option value="公">公</option><option value="母">母</option><option value="未知">未知</option></select>
+                <input name="weight" type="number" step="0.1" min="0" max="80" placeholder="体重(kg)">
+                <input name="foundLocation" maxlength="80" placeholder="发现地点" required>
+                <input name="currentLocation" maxlength="80" placeholder="当前安置地点" required>
+                <select name="emergencyLevel" required><option value="">请选择紧急程度</option><option value="高">高</option><option value="中">中</option><option value="低">低</option></select>
+                <select name="healthStatus" required><option value="">请选择健康状态</option><option value="健康稳定">健康稳定</option><option value="观察中">观察中</option><option value="受伤治疗中">受伤治疗中</option><option value="营养不良">营养不良</option></select>
+                <input name="personality" maxlength="50" placeholder="性格描述" required>
+                <input name="adoptRequirements" maxlength="100" placeholder="领养要求" required>
+                <textarea class="full-span" name="rescueDesc" minlength="10" maxlength="300" placeholder="救助经过说明" required></textarea>
+                <button class="full-span primary-btn" type="submit">提交救助记录</button>
+            </form>
+        </section>
+        <section class="panel-section">
+            <div class="section-head"><div><h3>我的救助任务</h3><p>随时查看审核状态与反馈</p></div></div>
+            <div class="table-shell"><table><thead><tr><th>动物</th><th>类型/性别</th><th>状态</th><th>地点</th><th>反馈</th></tr></thead><tbody><tr th:each="task : ${tasks}"><td th:text="${task.animalName}"></td><td th:text="${task.category + ' / ' + task.gender}"></td><td><span class="badge" th:text="${task.audit_status}"></span></td><td th:text="${task.found_location}"></td><td th:text="${task.audit_remark}"></td></tr></tbody></table></div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

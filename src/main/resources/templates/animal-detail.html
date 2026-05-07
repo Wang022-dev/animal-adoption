@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>动物详情 - Pet Haven</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-brand">
+        <span class="brand-chip dark">PET HAVEN</span>
+        <h1>流浪动物守护与领养平台</h1>
+    </div>
+    <nav class="site-nav">
+        <a th:href="@{/user/home}" href="/user/home">首页</a>
+        <a class="active" th:href="@{/user/animals}" href="/user/animals">可领养动物</a>
+        <a th:href="@{/user/applications}" href="/user/applications">我的申请</a>
+        <a th:href="@{/user/articles}" href="/user/articles">公益资讯</a>
+        <a th:href="@{/user/profile}" href="/user/profile">我的资料</a>
+    </nav>
+    <div class="site-actions">
+        <a class="outline-btn" th:href="@{/user/home}" href="/user/home">返回首页</a>
+    </div>
+</header>
+
+<main class="site-main detail-main">
+    <section class="detail-hero-banner">
+        <div>
+            <span class="eyebrow">动物档案</span>
+            <h2 th:text="${animal != null ? animal.name : '动物不存在或已下线'}"></h2>
+            <p>查看完整动物信息、领养要求与历史回访记录，再决定是否提交申请。</p>
+        </div>
+    </section>
+
+    <div class="detail-layout premium-detail-layout" th:if="${animal != null}">
+        <section class="detail-card scenic-detail-card">
+            <div class="detail-cover scenic-cover large-cover">
+                <img th:if="${animal.coverImage != null and !#strings.isEmpty(animal.coverImage)}"
+                     th:src="@{${animal.coverImage}}"
+                     alt="动物图片"
+                     style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                <span class="cover-fallback large-fallback" th:if="${animal.coverImage == null or #strings.isEmpty(animal.coverImage)}" th:text="${animal.category == '狗' ? '🐶' : (animal.category == '猫' ? '🐱' : '🐾')}"></span>
+            </div>
+            <h3>基础档案</h3>
+            <div class="detail-grid">
+                <div><strong>动物编号：</strong><span th:text="${animal.animalNo}"></span></div>
+                <div><strong>分类：</strong><span th:text="${animal.category}"></span></div>
+                <div><strong>品种：</strong><span th:text="${animal.breed}"></span></div>
+                <div><strong>年龄：</strong><span th:text="${animal.ageDesc}"></span></div>
+                <div><strong>性别：</strong><span th:text="${animal.gender}"></span></div>
+                <div><strong>体重：</strong><span th:text="${animal.weight != null ? animal.weight + ' kg' : '未填写'}"></span></div>
+                <div><strong>健康状态：</strong><span th:text="${animal.healthStatus}"></span></div>
+                <div><strong>紧急程度：</strong><span th:text="${animal.emergencyLevel}"></span></div>
+                <div><strong>发现地点：</strong><span th:text="${animal.foundLocation}"></span></div>
+                <div><strong>发现时间：</strong><span th:text="${#dates.format(animal.foundTime,'yyyy-MM-dd HH:mm')}"></span></div>
+                <div><strong>当前安置：</strong><span th:text="${animal.currentLocation}"></span></div>
+                <div><strong>性格：</strong><span th:text="${animal.personality}"></span></div>
+                <div><strong>领养要求：</strong><span th:text="${animal.adoptRequirements}"></span></div>
+                <div><strong>当前状态：</strong><span class="badge" th:text="${animal.status == 'OPEN_FOR_ADOPTION' ? '开放领养中' : (animal.status == 'APPLICATION_REVIEW' ? '申请审核中' : (animal.status == 'FOLLOWUP_PENDING' ? '待回访' : (animal.status == 'ADOPTION_COMPLETED' ? '已完成领养' : (animal.status == 'FOLLOWUP_EXCEPTION' ? '回访异常' : (animal.status == 'RETURNED_TO_CENTER' ? '退养返站' : animal.status)))))}"></span></div>
+            </div>
+            <div class="desc-box">
+                <strong>救助说明：</strong>
+                <p th:text="${animal.rescueDesc}"></p>
+            </div>
+        </section>
+
+        <section class="detail-card">
+            <h3>提交领养申请</h3>
+            <div th:if="${myApplication != null}" class="notice-box">
+                你已经提交过该动物的申请，当前状态：<span class="badge" th:text="${myApplication.status == 'PENDING' ? '待审核' : (myApplication.status == 'SUPPLEMENT' ? '待补充资料' : (myApplication.status == 'APPROVED' ? '已通过' : (myApplication.status == 'REJECTED' ? '已驳回' : myApplication.status)))}"></span>
+                <p th:if="${myApplication.auditRemark != null}">审核说明：<span th:text="${myApplication.auditRemark}"></span></p>
+                <p th:if="${myApplication.status == 'SUPPLEMENT'}" class="tip-highlight">当前为补充资料状态，你可以根据审核意见重新提交一版更完整的申请。</p>
+            </div>
+            <form th:if="${myApplication == null || myApplication.status == 'SUPPLEMENT'}" class="grid-form panel-form" th:action="@{/user/adoption/apply}" action="/user/adoption/apply" method="post">
+                <input type="hidden" name="animalId" th:value="${animal.id}">
+                <textarea name="applyReason" minlength="10" maxlength="300" placeholder="请填写你的领养理由，例如：为什么想领养、平时谁照顾" required></textarea>
+                <input name="housingInfo" maxlength="120" placeholder="居住情况，例如：自住房/租房，是否封窗、是否独立空间" required>
+                <input name="familyInfo" maxlength="120" placeholder="家庭成员情况，例如：与谁同住、家人是否同意" required>
+                <input name="petExperience" maxlength="120" placeholder="养宠经验，例如：是否养过猫狗、如何处理应激/生病" required>
+                <select name="workStability" required>
+                    <option value="">请选择工作/学习稳定性</option>
+                    <option value="稳定坐班">稳定坐班</option>
+                    <option value="弹性工作">弹性工作</option>
+                    <option value="学生在校">学生在校</option>
+                    <option value="经常出差">经常出差</option>
+                </select>
+                <select name="contactTime" required>
+                    <option value="">请选择方便联系时段</option>
+                    <option value="工作日上午">工作日上午</option>
+                    <option value="工作日下午">工作日下午</option>
+                    <option value="工作日晚上">工作日晚上</option>
+                    <option value="周末均可">周末均可</option>
+                </select>
+                <select name="acceptVisit" required>
+                    <option value="">是否接受后续回访</option>
+                    <option value="接受">接受</option>
+                    <option value="需提前预约">需提前预约</option>
+                </select>
+                <button type="submit" class="primary-btn">提交申请</button>
+            </form>
+
+            <div class="notice-box" th:if="${followups != null and !followups.isEmpty()}">
+                <strong>历史回访记录</strong>
+                <div th:each="item : ${followups}" class="followup-item">
+                    <div>
+                        <span class="badge" th:text="${item.followupResult == 'NORMAL' ? '正常' : (item.followupResult == 'ABNORMAL' ? '需继续观察' : (item.followupResult == 'RETURNED' ? '退养' : item.followupResult))}"></span>
+                        <span th:text="${#dates.format(item.followupTime,'yyyy-MM-dd HH:mm')}"></span>
+                    </div>
+                    <p th:text="${item.followupContent}"></p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <section class="content-section" th:if="${animal == null}">
+        <div class="empty-state-card">
+            当前动物档案不存在、已下线或暂不可查看，请返回可领养动物页面重新选择。
+            <div style="margin-top: 16px;">
+                <a class="primary-btn" th:href="@{/user/animals}" href="/user/animals">返回动物列表</a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

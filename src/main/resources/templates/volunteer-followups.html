@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>回访管理 - 志愿者</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar volunteer-theme">
+        <div class="sidebar-brand-block"><span class="brand-chip dark">FIELD CARE</span><h2>志愿者任务中心</h2><p th:text="'欢迎回来，' + ${loginUser.realName}"></p></div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/volunteer/dashboard}" href="/volunteer/dashboard">任务总览</a>
+            <a class="nav-item" th:href="@{/volunteer/rescues}" href="/volunteer/rescues">救助登记</a>
+            <a class="nav-item" th:href="@{/volunteer/care}" href="/volunteer/care">护理跟进</a>
+            <a class="nav-item active" th:href="@{/volunteer/followups}" href="/volunteer/followups">回访管理</a>
+            <a class="nav-item" th:href="@{/volunteer/profile}" href="/volunteer/profile">个人资料</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner volunteer-banner"><div><span class="eyebrow">长期追踪</span><h1>让领养后的情况被持续记录</h1><p>回访页既能新增记录，也能展示既往历史，符合真正上线系统的风控思路。</p></div></section>
+        <div class="double-section">
+            <section class="panel-section">
+                <div class="section-head"><div><h3>新增回访记录</h3><p>请填写已通过审核的领养用户与动物对应关系，再提交回访结果。</p></div></div>
+                <div class="notice-box" th:if="${param.invalidPair}">未找到已通过审核的动物与领养用户对应关系，请先确认管理员是否已通过申请。</div>
+                <form class="grid-form two-col-form panel-form" th:action="@{/volunteer/followup/create}" action="/volunteer/followup/create" method="post">
+                    <input name="animalId" type="number" min="1" placeholder="动物ID" required>
+                    <input name="adopterUserId" type="number" min="1" placeholder="领养用户ID" required>
+                    <div class="full-span hint-panel">
+                        <strong>可回访的已通过申请参考</strong>
+                        <div class="candidate-list" th:if="${followupCandidates != null and !#lists.isEmpty(followupCandidates)}">
+                            <div class="candidate-item" th:each="candidate : ${followupCandidates}" th:if="${candidate['status'] == '已通过'}">
+                                <span th:text="'动物ID：' + ${candidate['animalId']}"></span>
+                                <span th:text="'动物：' + ${candidate['animalName']}"></span>
+                                <span th:text="'领养人ID：' + ${candidate['applicantUserId']}"></span>
+                                <span th:text="'领养人：' + ${candidate['applicantName']}"></span>
+                            </div>
+                        </div>
+                        <div th:if="${followupCandidates == null or #lists.isEmpty(followupCandidates)}">当前暂无已通过审核的领养配对。</div>
+                    </div>
+                    <select name="followupResult" required><option value="">请选择回访结果</option><option value="NORMAL">正常</option><option value="ABNORMAL">需继续观察</option><option value="RETURNED">退养</option></select>
+                    <div class="form-tip">回访内容建议包含饮食、排泄、互动、环境适应等信息。</div>
+                    <textarea class="full-span" name="followupContent" minlength="10" maxlength="300" placeholder="填写回访内容" required></textarea>
+                    <button class="full-span primary-btn" type="submit">提交回访记录</button>
+                </form>
+            </section>
+            <section class="panel-section">
+                <div class="section-head"><div><h3>历史回访记录</h3><p>用于答辩时展示长期责任闭环</p></div></div>
+                <div class="table-shell"><table><thead><tr><th>动物ID</th><th>领养人ID</th><th>结果</th><th>时间</th><th>内容</th></tr></thead><tbody><tr th:if="${#lists.isEmpty(followups)}"><td colspan="5">当前还没有回访记录，管理员通过领养申请后可在此补充回访闭环。</td></tr><tr th:each="item : ${followups}"><td th:text="${item.animalId}"></td><td th:text="${item.adopterUserId}"></td><td><span class="badge" th:text="${item.followupResult == 'NORMAL' ? '正常' : (item.followupResult == 'ABNORMAL' ? '需继续观察' : (item.followupResult == 'RETURNED' ? '退养' : item.followupResult))}"></span></td><td th:text="${#dates.format(item.followupTime,'yyyy-MM-dd HH:mm')}"></td><td th:text="${item.followupContent}"></td></tr></tbody></table></div>
+            </section>
+        </div>
+    </main>
+</div>
+</body>
+</html>

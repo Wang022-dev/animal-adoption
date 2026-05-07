@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>数据分析 - 管理员</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<div class="app-layout">
+    <aside class="pro-sidebar admin-theme">
+        <div class="sidebar-brand-block">
+            <span class="brand-chip dark">PET HAVEN OPS</span>
+            <h2>管理员运营中心</h2>
+            <p th:text="'欢迎回来，' + ${loginUser.realName}"></p>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" th:href="@{/admin/dashboard}" href="/admin/dashboard">工作台总览</a>
+            <a class="nav-item" th:href="@{/admin/animals}" href="/admin/animals">动物档案</a>
+            <a class="nav-item" th:href="@{/admin/rescues}" href="/admin/rescues">救助审核</a>
+            <a class="nav-item" th:href="@{/admin/applications}" href="/admin/applications">领养审核</a>
+            <a class="nav-item" th:href="@{/admin/members}" href="/admin/members">成员管理</a>
+            <a class="nav-item active" th:href="@{/admin/analytics}" href="/admin/analytics">数据分析</a>
+        </nav>
+        <div class="sidebar-footer"><a class="logout" th:href="@{/logout}" href="/logout">退出登录</a></div>
+    </aside>
+    <main class="pro-content">
+        <section class="hero-banner admin-banner">
+            <div><span class="eyebrow">经营看板</span><h1>把项目做成有运营感的数据后台</h1><p>虽然当前是毕设，但这个页面已经按产品化方式组织：指标、结构、列表、风控视图都具备。</p></div>
+            <div class="hero-metrics">
+                <div class="hero-metric" th:each="item : ${animalStats}"><span th:text="${item.label}"></span><strong th:text="${item.value}"></strong></div>
+            </div>
+        </section>
+        <div class="double-section">
+            <section class="panel-section">
+                <div class="section-head"><div><h3>救助侧观察</h3><p>通过救助记录与状态表现业务活跃度</p></div></div>
+                <div class="table-shell">
+                    <table>
+                        <thead><tr><th>动物</th><th>发现地点</th><th>紧急程度</th><th>状态</th></tr></thead>
+                        <tbody>
+                        <tr th:each="rescue : ${rescues}">
+                            <td th:text="${rescue['animalName']}"></td>
+                            <td th:text="${rescue['found_location']}"></td>
+                            <td th:text="${rescue['emergency_level']}"></td>
+                            <td><span class="badge" th:text="${rescue['audit_status']}"></span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section class="panel-section">
+                <div class="section-head"><div><h3>领养侧观察</h3><p>通过申请状态展示转化进度与审核负载</p></div></div>
+                <div class="table-shell">
+                    <table>
+                        <thead><tr><th>申请人</th><th>动物</th><th>状态</th><th>审核意见</th></tr></thead>
+                        <tbody>
+                        <tr th:each="app : ${applications}">
+                            <td th:text="${app.applicantName}"></td>
+                            <td th:text="${app.animalName}"></td>
+                            <td><span class="badge" th:text="${app.status}"></span></td>
+                            <td th:text="${app.audit_remark}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+</body>
+</html>

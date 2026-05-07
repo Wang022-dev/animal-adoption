@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>公益资讯 - Pet Haven</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-brand"><span class="brand-chip dark">PET HAVEN</span><h1>流浪动物守护与领养平台</h1></div>
+    <nav class="site-nav">
+        <a th:href="@{/user/home}" href="/user/home">首页</a>
+        <a th:href="@{/user/animals}" href="/user/animals">可领养动物</a>
+        <a th:href="@{/user/applications}" href="/user/applications">我的申请</a>
+        <a class="active" th:href="@{/user/articles}" href="/user/articles">公益资讯</a>
+        <a th:href="@{/user/profile}" href="/user/profile">我的资料</a>
+    </nav>
+    <div class="site-actions"><a class="outline-btn" th:href="@{/logout}" href="/logout">退出登录</a></div>
+</header>
+<main class="site-main">
+    <section class="detail-hero-banner"><div><span class="eyebrow">内容运营</span><h2>公益资讯与领养故事</h2><p>通过内容模块增强品牌感、用户信任感与平台持续运营能力。</p></div></section>
+    <section class="content-section">
+        <div class="premium-article-list">
+            <article class="premium-article-card" th:each="article : ${articles}">
+                <span class="article-kicker" th:text="${article.category}"></span>
+                <h4 th:text="${article.title}"></h4>
+                <p th:text="${article.summary}"></p>
+                <small th:text="${#dates.format(article.createTime,'yyyy-MM-dd HH:mm')}"></small>
+            </article>
+        </div>
+    </section>
+</main>
+</body>
+</html>

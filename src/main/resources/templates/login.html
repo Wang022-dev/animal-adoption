@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Haven - 流浪动物守护与领养平台</title>
+    <link rel="stylesheet" th:href="@{/assets/style.css}" href="/assets/style.css">
+</head>
+<body class="auth-page">
+<div class="auth-shell">
+    <section class="auth-visual login-visual">
+        <div class="visual-overlay"></div>
+        <div class="visual-content">
+            <span class="brand-chip">PET HAVEN</span>
+            <h1>让救助、护理、领养与回访，变成一个真正可运营的公益品牌平台</h1>
+            <p>以品牌化前台和流程化后台，连接管理员、志愿者与领养用户，让每一只流浪动物被更温柔地看见。</p>
+            <div class="visual-stats">
+                <div class="visual-stat-card"><strong>365+</strong><span>救助档案</span></div>
+                <div class="visual-stat-card"><strong>128</strong><span>完成领养</span></div>
+                <div class="visual-stat-card"><strong>42</strong><span>活跃志愿者</span></div>
+            </div>
+            <div class="visual-tags">
+                <span>动物救助</span>
+                <span>领养审核</span>
+                <span>回访闭环</span>
+                <span>公益资讯</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="auth-card premium-card">
+        <div class="auth-header">
+            <div>
+                <span class="eyebrow">欢迎回来</span>
+                <h2>登录管理平台</h2>
+                <p>适用于管理员、志愿者与领养用户的统一登录入口</p>
+            </div>
+            <a class="ghost-link compact-link" th:href="@{/register}" href="/register">注册账号</a>
+        </div>
+
+        <form th:action="@{/login}" action="/login" method="post" class="auth-form">
+            <label>账号</label>
+            <input name="username" placeholder="请输入账号" required>
+
+            <label>密码</label>
+            <input type="password" name="password" placeholder="请输入密码" required>
+
+            <label>验证码</label>
+            <div class="captcha-row">
+                <input name="captcha" placeholder="请输入右侧验证码" maxlength="4" required>
+                <div class="captcha-box" th:text="${captchaCode}"></div>
+            </div>
+
+            <button type="submit" class="primary-btn large-btn">安全登录</button>
+        </form>
+
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+        <p class="success" th:if="${success}" th:text="${success}"></p>
+
+        <div class="account-panel soft-panel">
+            <div class="account-panel-head">
+                <strong>新用户入口</strong>
+                <span>没有账号？先注册一个领养用户账号再体验完整流程</span>
+            </div>
+            <div class="auth-action-row">
+                <a class="primary-btn secondary-btn" th:href="@{/register}" href="/register">立即注册</a>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>
